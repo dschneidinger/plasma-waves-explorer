@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Plasma Waves Explorer</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css" />
+    <link rel="stylesheet" href="styles.css" />
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+          "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/",
+          "katex": "https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.mjs"
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="title-row">
+        <h1>Plasma Waves Explorer</h1>
+        <label class="predict-switch" title="Hide the wave's name until you guess it">
+          <input type="checkbox" id="predictToggle" /> Predict first
+        </label>
+      </div>
+      <div id="toggles" class="toggles" role="group" aria-label="Wave settings"></div>
+    </header>
+
+    <main class="layout">
+      <section class="stage" id="stage" aria-label="3D view of the wave">
+        <div class="mode-label" id="modeLabel"></div>
+        <div class="no-mode" id="noMode" hidden></div>
+      </section>
+
+      <aside class="panel">
+        <section class="mode-card" id="modeCard" aria-live="polite"></section>
+        <section class="panel-section" id="viewSection">
+          <h3 class="panel-heading">View</h3>
+          <div id="viewPanel"></div>
+        </section>
+        <section class="panel-section" id="fieldSection">
+          <h3 class="panel-heading">Height shows</h3>
+          <div id="fieldPanel"></div>
+        </section>
+        <section class="panel-section" id="readoutSection">
+          <h3 class="panel-heading">Numbers</h3>
+          <dl class="readout" id="readout"></dl>
+        </section>
+      </aside>
+    </main>
+
+    <footer class="transport">
+      <button id="play" class="primary" type="button" title="Play / pause (Space)">▶ Play</button>
+      <button id="reset" type="button" title="Back to t = 0 (R)">↺ Reset</button>
+      <div class="speed" id="speed" role="group" aria-label="Playback speed"></div>
+      <div id="shape" role="group" aria-label="Plane wave or wave packet"></div>
+      <span class="clock" id="clock"></span>
+    </footer>
+
+    <script type="module" src="src/main.js"></script>
+  </body>
+</html>
