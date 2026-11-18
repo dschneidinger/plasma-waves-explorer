@@ -1,5 +1,7 @@
 # Plasma Waves Explorer
 
+**Live:** <https://dschneidinger.github.io/plasma-waves-explorer/>
+
 An interactive 3D module for an introductory plasma course (Chen, ch. 4). Students pick a
 few discrete settings (B₀ on/off, k ∥ or ⊥ B₀, electrostatic or electromagnetic,
 polarization, frozen or mobile ions, cold or warm species) and watch the wave that results:
@@ -21,7 +23,7 @@ directly from disk won't work:
 python3 scripts/serve.py
 ```
 
-then open <http://127.0.0.1:8123>. Any static host works too, e.g. GitHub Pages (serve the
+then open <http://127.0.0.1:8123>. Any static host works too; the live copy above is GitHub Pages (serving the
 repository root). three.js and KaTeX load from public CDNs, so the page needs internet access.
 
 ## Linking to a specific wave
