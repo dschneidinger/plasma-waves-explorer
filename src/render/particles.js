@@ -54,6 +54,7 @@ export function createParticles() {
   let showOrbits = true;
   let orbitsAllowed = true;
   let blobScale = 1;
+  let sizeMul = 1; // high-visibility mode enlarges the blobs
 
   function buildOrbits(s) {
     s.orbits.geometry.dispose();
@@ -105,7 +106,8 @@ export function createParticles() {
       for (const s of Object.values(species)) {
         for (let n = 0; n < s.eq.length; n++) {
           const p = s.eq[n];
-          m.makeScale(blobScale, blobScale, blobScale);
+          const r = blobScale * sizeMul;
+          m.makeScale(r, r, r);
           if (s.moving) {
             toWorld(sumRealVec(s.comps, p[0], thetas, d), w);
             m.setPosition(p[0] + w[0], p[1] + w[1], p[2] + w[2]);
@@ -122,6 +124,8 @@ export function createParticles() {
       species.i.mesh.material.color.set(c.ion);
       species.e.orbitMat.color.set(c.electron);
       species.i.orbitMat.color.set(c.ion);
+      sizeMul = Math.sqrt(c.scale ?? 1);
+      for (const s of Object.values(species)) s.orbitMat.opacity = (c.scale ?? 1) > 1 ? 0.85 : 0.35;
     },
   };
 }

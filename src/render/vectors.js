@@ -57,6 +57,7 @@ export function createVectors() {
   const w = [0, 0, 0];
   const show = { E: true, B: true };
   let nArrows = 32;
+  let thick = 1; // shaft/head thickness multiplier (high-visibility mode)
 
   function updateField(f, thetas) {
     if (!f.present) return;
@@ -75,10 +76,11 @@ export function createVectors() {
       q.setFromUnitVectors(UP, dir);
       const head = Math.min(HEAD_LEN, len);
       pos.set(x, 0, 0);
-      m.compose(pos, q, scl.set(1, Math.max(len - head, 1e-4), 1));
+      m.compose(pos, q, scl.set(thick, Math.max(len - head, 1e-4), thick));
       f.shafts.setMatrixAt(n, m);
       pos.addScaledVector(dir, len - head);
-      m.compose(pos, q, scl.set(head / HEAD_LEN, head / HEAD_LEN, head / HEAD_LEN));
+      const hs = head / HEAD_LEN;
+      m.compose(pos, q, scl.set(hs * thick, hs, hs * thick));
       f.heads.setMatrixAt(n, m);
     }
     f.shafts.instanceMatrix.needsUpdate = true;
@@ -124,6 +126,10 @@ export function createVectors() {
       fields.B.mat.color.set(c.vecB);
       fields.B.curveMat.color.set(c.vecB);
       axisMat.color.set(c.axis);
+      const bold = (c.scale ?? 1) > 1;
+      thick = bold ? c.scale : 1;
+      fields.E.curveMat.opacity = fields.B.curveMat.opacity = bold ? 1 : 0.7;
+      axisMat.opacity = bold ? 1 : 0.6;
     },
   };
 }

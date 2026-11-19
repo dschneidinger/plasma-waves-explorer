@@ -1,6 +1,8 @@
 // "Predict first": before the wave is named, the student picks which wave these
 // toggles produce (or that none exists). Pure logic, unit-tested.
 
+import { normalizeState, resolveMode } from '../physics/modes.js';
+
 export const ANSWERS = {
   plasmaOsc: 'Plasma oscillation',
   langmuir: 'Langmuir wave',
@@ -79,4 +81,43 @@ export function quizFor(res, seed) {
   ).slice(0, 3);
   const options = shuffle([answer, ...others], rand).map((key) => ({ key, label: ANSWERS[key] }));
   return { answer, options };
+}
+
+// --- "Random wave": a toggle state for the student to identify ---------------------
+
+
+let statesByAnswer = null;
+
+/** Every distinct normalized toggle state, grouped by its answer key. */
+export function statesByAnswerKey() {
+  if (statesByAnswer) return statesByAnswer;
+  const seen = new Set();
+  statesByAnswer = {};
+  for (const B0 of ['off', 'on'])
+    for (const kDir of ['par', 'perp'])
+      for (const character of ['es', 'em'])
+        for (const polarization of ['Epar', 'Eperp', 'R', 'L'])
+          for (const ions of ['frozen', 'mobile'])
+            for (const electrons of ['cold', 'warm'])
+              for (const ionTemp of ['cold', 'warm'])
+                for (const branch of ['high', 'low']) {
+                  const s = normalizeState({ B0, kDir, character, polarization, ions, electrons, ionTemp, branch });
+                  const key = new URLSearchParams(s).toString();
+                  if (seen.has(key)) continue;
+                  seen.add(key);
+                  (statesByAnswer[answerKey(resolveMode(s))] ??= []).push(s);
+                }
+  return statesByAnswer;
+}
+
+/**
+ * A random toggle state: first an answer chosen uniformly (so rare waves come up as
+ * often as common ones, and "no wave" is one of them), then a state producing it.
+ * `avoid` is an answer key not to repeat.
+ */
+export function randomState(rand = Math.random, avoid = null) {
+  const groups = statesByAnswerKey();
+  const keys = Object.keys(groups).filter((k) => k !== avoid);
+  const pool = groups[keys[Math.floor(rand() * keys.length)]];
+  return pool[Math.floor(rand() * pool.length)];
 }

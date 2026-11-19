@@ -82,11 +82,12 @@ export function createDispersionPlot(container, { onPickK, onResetK }) {
   let data = null; // computed curves for the current mode
   let packetKs = [];
   let W = 300;
-  const H = 190;
+  let H = 190;
 
   // on a phone the plot would cover the wave, so start collapsed
   setCollapsed(container.clientWidth < 600);
   const M = { l: 42, r: 40, t: 8, b: 26 };
+  const setMargins = (big) => Object.assign(M, big ? { l: 50, r: 50, t: 8, b: 30 } : { l: 42, r: 40, t: 8, b: 26 });
 
   function compute(sol, opts) {
     const k0 = sol.k;
@@ -108,7 +109,13 @@ export function createDispersionPlot(container, { onPickK, onResetK }) {
 
   function draw() {
     if (!data || wrap.classList.contains('collapsed')) return;
-    W = Math.max(200, Math.min(300, container.clientWidth - 44));
+    const css = getComputedStyle(document.documentElement);
+    const c = (n) => css.getPropertyValue(n).trim();
+    const s = Number(c('--hv-scale')) || 1; // high-visibility mode: bigger, bolder
+    const big = s > 1;
+    W = Math.max(200, Math.min(big ? 360 : 300, container.clientWidth - 44));
+    H = big ? 230 : 190;
+    setMargins(big);
     const dpr = window.devicePixelRatio || 1;
     canvas.width = W * dpr;
     canvas.height = H * dpr;
@@ -116,10 +123,8 @@ export function createDispersionPlot(container, { onPickK, onResetK }) {
     canvas.style.height = `${H}px`;
     const ctx = canvas.getContext('2d');
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    const css = getComputedStyle(document.documentElement);
-    const c = (n) => css.getPropertyValue(n).trim();
     ctx.clearRect(0, 0, W, H);
-    ctx.font = '10px system-ui, sans-serif';
+    ctx.font = big ? '600 13px system-ui, sans-serif' : '10px system-ui, sans-serif';
 
     // decade grid + tick labels
     ctx.strokeStyle = c('--border');
@@ -146,7 +151,7 @@ export function createDispersionPlot(container, { onPickK, onResetK }) {
       ctx.fillText(`10${superscript(e)}`, x, H - M.b + 3);
     }
     ctx.textAlign = 'left';
-    ctx.fillText('k (ωₚₑ/c)', W - M.r - 44, H - 11);
+    ctx.fillText('k (ωₚₑ/c)', W - M.r - (big ? 60 : 44), H - (big ? 12 : 11));
     ctx.save();
     ctx.translate(9, M.t + 50);
     ctx.rotate(-Math.PI / 2);
@@ -162,6 +167,7 @@ export function createDispersionPlot(container, { onPickK, onResetK }) {
     // characteristic frequencies
     ctx.setLineDash([3, 3]);
     ctx.strokeStyle = c('--muted');
+    ctx.lineWidth = big ? 1.5 : 1;
     const labels = [];
     for (const [name, w] of data.refs) {
       if (w <= data.lo || w >= data.hi) continue;
@@ -176,6 +182,7 @@ export function createDispersionPlot(container, { onPickK, onResetK }) {
     if (data.line) {
       const v = data.line[1];
       ctx.strokeStyle = c('--arrow-k');
+      ctx.lineWidth = big ? 2 : 1;
       ctx.beginPath();
       ctx.moveTo(X(data.ks[0]), Y(v * data.ks[0]));
       ctx.lineTo(X(data.ks.at(-1)), Y(v * data.ks.at(-1)));
@@ -186,7 +193,7 @@ export function createDispersionPlot(container, { onPickK, onResetK }) {
     // branches
     for (const curve of data.curves.slice().sort((a, b) => a.main - b.main)) {
       ctx.strokeStyle = curve.main ? c('--accent') : c('--muted');
-      ctx.lineWidth = curve.main ? 2.2 : 1.2;
+      ctx.lineWidth = (curve.main ? 2.2 : 1.2) * (big ? 1.6 : 1);
       ctx.beginPath();
       let pen = false;
       curve.ws.forEach((w, n) => {
@@ -207,7 +214,7 @@ export function createDispersionPlot(container, { onPickK, onResetK }) {
     const { k, omega, vgroup } = data.sol;
     if (Number.isFinite(vgroup)) {
       ctx.strokeStyle = c('--text');
-      ctx.lineWidth = 1;
+      ctx.lineWidth = big ? 2 : 1;
       ctx.beginPath();
       for (const f of [0.6, 1.6]) {
         const kk = k * f;
@@ -222,12 +229,12 @@ export function createDispersionPlot(container, { onPickK, onResetK }) {
       const w = data.curves[0].ws[Math.max(idx, 0)];
       if (w > 0) {
         ctx.beginPath();
-        ctx.arc(X(pk), Y(w), 2, 0, 2 * Math.PI);
+        ctx.arc(X(pk), Y(w), big ? 3.5 : 2, 0, 2 * Math.PI);
         ctx.fill();
       }
     }
     ctx.beginPath();
-    ctx.arc(X(k), Y(omega), 4.5, 0, 2 * Math.PI);
+    ctx.arc(X(k), Y(omega), big ? 7 : 4.5, 0, 2 * Math.PI);
     ctx.fill();
     ctx.strokeStyle = c('--surface');
     ctx.lineWidth = 1.5;
@@ -240,7 +247,7 @@ export function createDispersionPlot(container, { onPickK, onResetK }) {
     ctx.textBaseline = 'middle';
     let lastY = -100;
     for (const [name, y] of labels.sort((a, b) => a[1] - b[1])) {
-      const yy = Math.max(y, lastY + 10);
+      const yy = Math.max(y, lastY + (big ? 14 : 10));
       ctx.fillText(name.replace(/_(\w+)/, (_, s) => s), W - M.r + 3, yy);
       lastY = yy;
     }

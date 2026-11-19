@@ -14,7 +14,7 @@ import { listFields, defaultFieldId } from './render/fields.js';
 import { buildDisplay } from './render/waveModel.js';
 import { renderToggles } from './ui/toggles.js';
 import { renderModeCard, predictPlaceholder } from './ui/modeCard.js';
-import { quizFor } from './ui/predict.js';
+import { quizFor, answerKey, randomState } from './ui/predict.js';
 import { renderFieldPanel } from './ui/fieldPanel.js';
 import { renderViewPanel, VIEWS } from './ui/viewPanel.js';
 import { createDispersionPlot } from './ui/dispersionPlot.js';
@@ -43,6 +43,8 @@ const el = {
   shape: $('shape'),
   clock: $('clock'),
   predictToggle: $('predictToggle'),
+  randomize: $('randomize'),
+  hvToggle: $('hvToggle'),
 };
 
 // --- URL hash: toggles + view + packet + chosen k --------------------------------
@@ -106,13 +108,28 @@ const plot = createDispersionPlot(el.stage, {
 function applyTheme() {
   const css = getComputedStyle(document.documentElement);
   const v = (name) => css.getPropertyValue(name).trim();
+  const scale = Number(v('--hv-scale')) || 1;
   scene3d.setTheme({ bg: v('--scene-bg'), floor: v('--scene-floor'), k: v('--arrow-k'), b0: v('--arrow-b0') });
-  surface.setTheme({ neg: v('--wave-neg'), mid: v('--wave-mid'), pos: v('--wave-pos'), grid: v('--wave-grid') });
-  particles.setTheme({ electron: v('--electron'), ion: v('--ion') });
-  vectors.setTheme({ vecE: v('--vec-e'), vecB: v('--vec-b'), axis: v('--scene-floor') });
+  surface.setTheme({ neg: v('--wave-neg'), mid: v('--wave-mid'), pos: v('--wave-pos'), grid: v('--wave-grid'), scale });
+  particles.setTheme({ electron: v('--electron'), ion: v('--ion'), scale });
+  vectors.setTheme({ vecE: v('--vec-e'), vecB: v('--vec-b'), axis: v('--scene-floor'), scale });
   plot.redraw();
 }
 window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyTheme);
+
+// High visibility: a per-viewer preference kept in localStorage (index.html applies
+// it before first paint); defaults to the OS "increase contrast" setting.
+const HV_KEY = 'pwe-high-visibility';
+el.hvToggle.checked = document.documentElement.dataset.contrast === 'high';
+el.hvToggle.addEventListener('change', () => {
+  const on = el.hvToggle.checked;
+  if (on) document.documentElement.dataset.contrast = 'high';
+  else delete document.documentElement.dataset.contrast;
+  try {
+    localStorage.setItem(HV_KEY, on ? '1' : '0');
+  } catch {}
+  applyTheme();
+});
 
 // --- state updates -------------------------------------------------------------
 
@@ -203,6 +220,17 @@ function renderCard() {
 }
 
 el.predictToggle.checked = app.predict;
+// "Random wave": a new setup (never the same wave twice in a row) with its name
+// hidden, so the student reads the toggles and the motion and then guesses.
+el.randomize.addEventListener('click', () => {
+  app.state = randomState(Math.random, answerKey(app.res));
+  app.kOverride = null;
+  app.predict = true;
+  el.predictToggle.checked = true;
+  app.guesses.delete(stateKey());
+  update();
+});
+
 el.predictToggle.addEventListener('change', () => {
   app.predict = el.predictToggle.checked;
   writeHash();

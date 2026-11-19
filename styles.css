@@ -76,6 +76,86 @@
   color-scheme: dark;
 }
 
+/* --- high visibility --------------------------------------------------------------
+   Maximum-contrast text, Okabe–Ito colours (distinguishable with the common colour
+   vision deficiencies), thicker lines and a larger UI. --hv-scale is read by the
+   3D renderers and the dispersion plot. */
+
+:root[data-contrast='high'] {
+  --bg: #ffffff;
+  --surface: #ffffff;
+  --border: #000000;
+  --text: #000000;
+  --muted: #1a1a1a;
+  --accent: #0047b3;
+  --accent-text: #ffffff;
+  --warn: #7a3d00;
+
+  --scene-bg: #ffffff;
+  --scene-floor: #000000;
+  --wave-neg: #0072b2;
+  --wave-mid: #bdbdbd;
+  --wave-pos: #d55e00;
+  --wave-grid: #000000;
+  --arrow-k: #00704e;
+  --arrow-b0: #6a1b9a;
+  --electron: #0072b2;
+  --ion: #d55e00;
+  --vec-e: #0072b2;
+  --vec-b: #d55e00;
+  --hv-scale: 1.7;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root[data-contrast='high']:not([data-theme='light']) {
+    --bg: #000000;
+    --surface: #000000;
+    --border: #ffffff;
+    --text: #ffffff;
+    --muted: #e6e6e6;
+    --accent: #6cb6ff;
+    --accent-text: #000000;
+    --warn: #ffc04d;
+
+    --scene-bg: #000000;
+    --scene-floor: #ffffff;
+    --wave-neg: #56b4e9;
+    --wave-mid: #5a5a5a;
+    --wave-pos: #ff8c42;
+    --wave-grid: #000000;
+    --arrow-k: #3ddc97;
+    --arrow-b0: #d9a6ff;
+    --electron: #56b4e9;
+    --ion: #ff8c42;
+    --vec-e: #56b4e9;
+    --vec-b: #ff8c42;
+  }
+}
+
+:root[data-contrast='high'][data-theme='dark'] {
+  --bg: #000000;
+  --surface: #000000;
+  --border: #ffffff;
+  --text: #ffffff;
+  --muted: #e6e6e6;
+  --accent: #6cb6ff;
+  --accent-text: #000000;
+  --warn: #ffc04d;
+
+  --scene-bg: #000000;
+  --scene-floor: #ffffff;
+  --wave-neg: #56b4e9;
+  --wave-mid: #5a5a5a;
+  --wave-pos: #ff8c42;
+  --wave-grid: #000000;
+  --arrow-k: #3ddc97;
+  --arrow-b0: #d9a6ff;
+  --electron: #56b4e9;
+  --ion: #ff8c42;
+  --vec-e: #56b4e9;
+  --vec-b: #ff8c42;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -122,7 +202,30 @@ select {
   font-weight: 600;
 }
 
-.predict-switch {
+.title-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.randomize {
+  border: 1px solid var(--accent);
+  background: var(--bg);
+  color: var(--accent);
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 13px;
+  cursor: pointer;
+}
+.randomize:hover {
+  background: var(--accent);
+  color: var(--accent-text);
+}
+
+.predict-switch,
+.hv-switch {
   display: flex;
   align-items: center;
   gap: 6px;
@@ -673,5 +776,44 @@ button.primary {
   .panel {
     border-left: 0;
     border-top: 1px solid var(--border);
+  }
+}
+
+/* high visibility: larger UI (not the 3D stage or the plot canvas, whose
+   coordinates must stay 1:1), heavier borders and focus rings */
+[data-contrast='high'] .topbar,
+[data-contrast='high'] .panel,
+[data-contrast='high'] .transport,
+[data-contrast='high'] .mode-label,
+[data-contrast='high'] .no-mode,
+[data-contrast='high'] .dispersion-head,
+[data-contrast='high'] .dispersion-hint {
+  zoom: 1.2;
+}
+[data-contrast='high'] .scene-label {
+  font-size: 20px;
+  font-weight: 800;
+}
+[data-contrast='high'] .scene-label.muted {
+  font-weight: 700;
+}
+[data-contrast='high'] .mode-label .name {
+  font-weight: 800;
+}
+[data-contrast='high'] *,
+[data-contrast='high'] *::before,
+[data-contrast='high'] *::after {
+  border-width: 2px !important;
+}
+[data-contrast='high'] :focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+[data-contrast='high'] .dispersion {
+  background: var(--surface);
+}
+@media (min-width: 761px) {
+  [data-contrast='high'] .layout {
+    grid-template-columns: 1fr 400px; /* the panel's contents are zoomed 1.2× */
   }
 }

@@ -42,3 +42,19 @@ test('answer keys for a few named cases', () => {
     'alfven',
   );
 });
+
+test('random state: every answer is reachable, never repeats the avoided one', async () => {
+  const { randomState, statesByAnswerKey } = await import('../src/ui/predict.js');
+  assert.deepEqual(Object.keys(statesByAnswerKey()).sort(), Object.keys(ANSWERS).sort());
+  let x = 1;
+  const rand = () => ((x = (x * 48271) % 2147483647) / 2147483647);
+  const seen = new Set();
+  for (let i = 0; i < 2000; i++) {
+    const s = randomState(rand, 'whistler');
+    assert.deepEqual(normalizeState(s), s);
+    const a = answerKey(resolveMode(s));
+    assert.notEqual(a, 'whistler');
+    seen.add(a);
+  }
+  assert.equal(seen.size, Object.keys(ANSWERS).length - 1);
+});

@@ -13,6 +13,12 @@ polarization, frozen or mobile ions, cold or warm species) and watch the wave th
 - **Dispersion inset**: ω(k) with cutoffs and resonances. Click it to choose k.
 - **Wave packet**: the envelope travels at v_g while the crests travel at v_φ.
 - **Predict first**: hides the wave's name until the student guesses it.
+- **🎲 Random wave**: picks a random setup (each of the 13 waves and "no wave here" equally
+  likely, never the same twice in a row) and hides the name. Students read the toggles and
+  the motion, then guess.
+- **High visibility**: larger text, black/white contrast, colour-blind-safe (Okabe–Ito)
+  colours, thicker arrows, lines and blobs. Each browser remembers the choice, and it
+  turns on by itself when the OS "increase contrast" setting is on.
 
 ## Running it
 

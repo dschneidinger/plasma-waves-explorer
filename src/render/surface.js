@@ -41,6 +41,8 @@ const fragmentShader = /* glsl */ `
   uniform vec3 uPos;
   uniform vec3 uGrid;
   uniform float uLambda;
+  uniform float uGridW;   // line width in pixels-ish (fwidth units)
+  uniform float uGridA;   // line strength
   varying float vH;
   varying vec3 vNormal;
   varying vec2 vXZ;
@@ -48,7 +50,7 @@ const fragmentShader = /* glsl */ `
   float gridLine(float coord, float spacing) {
     float f = abs(fract(coord / spacing + 0.5) - 0.5) * spacing;
     float w = fwidth(coord);
-    return 1.0 - smoothstep(0.0, 1.5 * w, f);
+    return 1.0 - smoothstep(0.0, uGridW * w, f);
   }
 
   void main() {
@@ -58,7 +60,7 @@ const fragmentShader = /* glsl */ `
     float diffuse = max(dot(n, normalize(vec3(-0.4, 1.0, 0.6))), 0.0);
     vec3 col = base * (0.6 + 0.4 * diffuse);
     float g = max(gridLine(vXZ.x, uLambda / 4.0), gridLine(vXZ.y, WORLD_W / 8.0));
-    col = mix(col, uGrid, 0.35 * g);
+    col = mix(col, uGrid, uGridA * g);
     gl_FragColor = vec4(col, 1.0);
   }
 `.replace('WORLD_W', WORLD.W.toFixed(4));
@@ -79,6 +81,8 @@ export function createSurface() {
     uMid: { value: new THREE.Color() },
     uPos: { value: new THREE.Color() },
     uGrid: { value: new THREE.Color() },
+    uGridW: { value: 1.5 },
+    uGridA: { value: 0.35 },
   };
   const material = new THREE.ShaderMaterial({ uniforms, vertexShader, fragmentShader, side: THREE.DoubleSide });
   const mesh = new THREE.Mesh(geometry, material);
@@ -107,6 +111,9 @@ export function createSurface() {
       uniforms.uMid.value.set(c.mid);
       uniforms.uPos.value.set(c.pos);
       uniforms.uGrid.value.set(c.grid);
+      const bold = (c.scale ?? 1) > 1;
+      uniforms.uGridW.value = bold ? 2.5 : 1.5;
+      uniforms.uGridA.value = bold ? 0.6 : 0.35;
     },
   };
 }
