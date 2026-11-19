@@ -14,7 +14,7 @@ import { listFields, defaultFieldId } from './render/fields.js';
 import { buildDisplay } from './render/waveModel.js';
 import { renderToggles } from './ui/toggles.js';
 import { renderModeCard, predictPlaceholder } from './ui/modeCard.js';
-import { quizFor, answerKey, randomState } from './ui/predict.js';
+import { quizFor, answerKey, randomState, hashString } from './ui/predict.js';
 import { renderFieldPanel } from './ui/fieldPanel.js';
 import { renderViewPanel, VIEWS } from './ui/viewPanel.js';
 import { createDispersionPlot } from './ui/dispersionPlot.js';
@@ -47,6 +47,27 @@ const el = {
   hvToggle: $('hvToggle'),
 };
 
+// --- predict-first lock --------------------------------------------------------------
+// Predict first is always on for students. Turning it off takes the instructor code
+// (only its hash is stored here); once entered, this tab stays unlocked.
+// This is a speed bump for students, not security: anyone can read the JS.
+const UNLOCK_HASH = 2899920850;
+const UNLOCK_KEY = 'pwe-predict-unlocked';
+function isUnlocked() {
+  try {
+    return sessionStorage.getItem(UNLOCK_KEY) === '1';
+  } catch {
+    return false;
+  }
+}
+function checkCode(code) {
+  if (hashString(code.trim().toUpperCase()) !== UNLOCK_HASH) return false;
+  try {
+    sessionStorage.setItem(UNLOCK_KEY, '1');
+  } catch {}
+  return true;
+}
+
 // --- URL hash: toggles + view + packet + chosen k --------------------------------
 
 function readHash() {
@@ -57,14 +78,14 @@ function readHash() {
     state: normalizeState(rest),
     view: VIEWS.some((v) => v.value === view) ? view : 'surface',
     packet: packet === '1',
-    predict: predict === '1',
+    predict: !(predict === '0' && isUnlocked()), // predict=0 only works once unlocked
     kOverride: Number.isFinite(kNum) && kNum > 0 ? kNum : null,
   };
 }
 function writeHash() {
   const extra = { view: app.view };
   if (app.packet) extra.packet = '1';
-  if (app.predict) extra.predict = '1';
+  if (!app.predict) extra.predict = '0';
   if (app.kOverride) extra.k = app.kOverride.toPrecision(4);
   history.replaceState(null, '', `#${new URLSearchParams({ ...app.state, ...extra })}`);
 }
@@ -231,7 +252,39 @@ el.randomize.addEventListener('click', () => {
   update();
 });
 
+const lockDialog = $('unlockDialog');
+const lockInput = $('unlockCode');
+const lockError = $('unlockError');
+lockDialog.addEventListener('close', () => {
+  if (lockDialog.returnValue === 'ok' && checkCode(lockInput.value)) setPredict(false);
+  else el.predictToggle.checked = app.predict;
+});
+$('unlockForm').addEventListener('submit', (ev) => {
+  // keep the dialog open on a wrong code
+  if (ev.submitter?.value === 'ok' && hashString(lockInput.value.trim().toUpperCase()) !== UNLOCK_HASH) {
+    ev.preventDefault();
+    lockError.hidden = false;
+    lockInput.select();
+  }
+});
+
+function setPredict(on) {
+  app.predict = on;
+  el.predictToggle.checked = on;
+  writeHash();
+  renderCard();
+  if (!app.sol) showNoMode(app.res);
+}
+
 el.predictToggle.addEventListener('change', () => {
+  if (!el.predictToggle.checked && !isUnlocked()) {
+    el.predictToggle.checked = true;
+    lockInput.value = '';
+    lockError.hidden = true;
+    lockDialog.returnValue = '';
+    lockDialog.showModal();
+    return;
+  }
   app.predict = el.predictToggle.checked;
   writeHash();
   renderCard();

@@ -73,6 +73,19 @@
       <span class="clock" id="clock"></span>
     </footer>
 
+    <dialog id="unlockDialog" class="unlock" aria-labelledby="unlockTitle">
+      <form id="unlockForm" method="dialog">
+        <h2 id="unlockTitle">Instructor code</h2>
+        <p>Predict first stays on for students. Enter the instructor code to turn it off.</p>
+        <input id="unlockCode" type="password" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Instructor code" />
+        <p id="unlockError" class="unlock-error" role="alert" hidden>That code isn't right.</p>
+        <div class="actions">
+          <button value="cancel" formnovalidate>Cancel</button>
+          <button value="ok" class="primary">Unlock</button>
+        </div>
+      </form>
+    </dialog>
+
     <script type="module" src="src/main.js"></script>
   </body>
 </html>

@@ -12,7 +12,10 @@ polarization, frozen or mobile ions, cold or warm species) and watch the wave th
 - **Vectors**: E₁ and B₁ arrows along k (the helix for R/L waves).
 - **Dispersion inset**: ω(k) with cutoffs and resonances. Click it to choose k.
 - **Wave packet**: the envelope travels at v_g while the crests travel at v_φ.
-- **Predict first**: hides the wave's name until the student guesses it.
+- **Predict first**: hides the wave's name until the student guesses it. It is always on;
+  turning it off asks for the instructor code (**GOBRUINS**, any case). Once entered, it
+  stays unlocked until that browser tab is closed. This is only a speed bump: the code's hash
+  is in the page source and a determined student could get past it.
 - **🎲 Random wave**: picks a random setup (each of the 13 waves and "no wave here" equally
   likely, never the same twice in a row) and hides the name. Students read the toggles and
   the motion, then guess.
@@ -48,13 +51,13 @@ Everything is in the URL hash, so you can put links in problem sets or slides:
 | `view` | `surface`, `particles`, `vectors` |
 | `packet` | `1` for a wave packet |
 | `k` | wavenumber in ωₚₑ/c (omit for the default) |
-| `predict` | `1` to start in predict-first mode |
+| `predict` | `0` to start with predict-first off (works only in a tab already unlocked with the code) |
 
 Examples:
 
 - Cold plasma oscillation as a packet (it doesn't move): `#character=es&electrons=cold&packet=1`
 - Whistler, fluid elements: `#B0=on&kDir=par&character=em&polarization=R&branch=low&view=particles`
-- Shear Alfvén, predict first: `#B0=on&kDir=par&character=em&polarization=L&ions=mobile&predict=1`
+- Shear Alfvén: `#B0=on&kDir=par&character=em&polarization=L&ions=mobile`
 
 Missing parameters take sensible defaults, and invalid combinations are corrected.
 

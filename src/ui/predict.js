@@ -39,7 +39,7 @@ export function answerKey(res) {
   }
 }
 
-function hashString(s) {
+export function hashString(s) {
   let h = 2166136261;
   for (let i = 0; i < s.length; i++) {
     h ^= s.charCodeAt(i);

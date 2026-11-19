@@ -817,3 +817,55 @@ button.primary {
     grid-template-columns: 1fr 400px; /* the panel's contents are zoomed 1.2× */
   }
 }
+
+/* instructor-code dialog */
+.unlock {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--text);
+  padding: 18px 20px;
+  max-width: min(360px, calc(100vw - 32px));
+}
+.unlock::backdrop {
+  background: rgb(0 0 0 / 0.45);
+}
+.unlock h2 {
+  margin: 0 0 6px;
+  font-size: 16px;
+}
+.unlock p {
+  margin: 0 0 10px;
+  color: var(--muted);
+}
+.unlock input {
+  width: 100%;
+  font: inherit;
+  padding: 6px 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text);
+}
+.unlock .unlock-error {
+  color: var(--warn);
+  margin: 8px 0 0;
+}
+.unlock .actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 14px;
+}
+.unlock button {
+  border: 1px solid var(--border);
+  background: var(--bg);
+  border-radius: 6px;
+  padding: 5px 12px;
+  cursor: pointer;
+}
+.unlock button.primary {
+  background: var(--accent);
+  color: var(--accent-text);
+  border-color: var(--accent);
+}
